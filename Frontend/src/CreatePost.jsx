@@ -163,7 +163,7 @@ const CreatePost = () => {
           {/* File upload */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Upload Photos/Videos <span className="text-xs text-gray-500">(Max: 10)</span>
+              Upload Photos/Videos <span className="text-xs text-gray-500">(Max: 1)</span>
             </label>
             <input
               type="file"

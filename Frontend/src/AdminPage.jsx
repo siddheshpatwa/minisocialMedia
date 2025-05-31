@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
 import {
   FiTrash2,
   FiSearch,
@@ -21,6 +23,9 @@ const AdminPage = () => {
     fetchPosts();
     fetchUsers();
   }, []);
+  const navigate = useNavigate();
+
+
 
   const fetchPosts = async () => {
     try {
@@ -118,23 +123,45 @@ const deletePost = async (postId) => {
 //   }
 // };
 
+
+// const deleteUser = async (userId) => {
+//   if (!window.confirm("Are you sure you want to delete this user and all their posts?")) {
+//     return;
+//   }
+//   try {
+//     const response = await api.delete(`http://localhost:3000/api/admin/deleteProfile/${userId}`);
+//     if (response.status === 200 || response.status === 204) {
+//       console.log(`User ${userId} deleted successfully.`);
+//       // fetchPosts();
+//       // fetchUsers();
+
+//     }
+//   } catch (error) {
+//     console.error("Error deleting user:", error.response?.data || error.message);
+//   }
+// };
+
 const deleteUser = async (userId) => {
   if (!window.confirm("Are you sure you want to delete this user and all their posts?")) {
     return;
   }
+
   try {
     const response = await api.delete(`http://localhost:3000/api/admin/deleteProfile/${userId}`);
+
     if (response.status === 200 || response.status === 204) {
       console.log(`User ${userId} deleted successfully.`);
-      fetchPosts();
-      fetchUsers();
-            window.location.reload();
+      setUsers((prevUsers) => prevUsers.filter((user) => user.userId._id !== userId));
 
     }
+
   } catch (error) {
     console.error("Error deleting user:", error.response?.data || error.message);
   }
 };
+
+
+
 
 
   const filteredPosts = posts.filter((post) => {
@@ -154,7 +181,8 @@ const deleteUser = async (userId) => {
       user.email.toLowerCase().includes(term);
     if (match) console.log("User matched filter:", user.name);
     return match;
-  });
+  });  
+  
 
   useEffect(() => {
     // console.log("Post search term changed:", postSearch);
@@ -177,6 +205,12 @@ const deleteUser = async (userId) => {
       <h1 className="text-4xl font-bold text-center text-indigo-900 mb-10">
         Admin Dashboard
       </h1>
+        <button
+          onClick={() => navigate("/login")}
+          className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-md transition ml-[80em]"
+        >
+          Login
+        </button>
 
       {/* Users Section */}
    <section className="max-w-6xl mx-auto mb-20">
