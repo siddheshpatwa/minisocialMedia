@@ -99,23 +99,40 @@ const deletePost = async (postId) => {
   //     return updated;
   //   });
   // };
- const deleteUser = async (userId) => {
+
+
+//  const deleteUser = async (userId) => {
+//   try {
+//     console.log(`Attempting to delete user with userId: ${userId}`);
+
+//     const response = await axios.delete(`http://localhost:3000/api/admin/deleteProfile/${userId}`);
+
+//     if (response.status === 200 || response.status === 204) {
+//       console.log(`User ${userId} deleted successfully.`);
+//       setUsers((prevUsers) => prevUsers.filter((user) => user.userId._id !== userId));
+//     } else {
+//       console.error("Failed to delete user:", response.statusText);
+//     }
+//   } catch (error) {
+//     console.error("Error deleting user:", error.response?.data || error.message);
+//   }
+// };
+
+const deleteUser = async (userId) => {
+  if (!window.confirm("Are you sure you want to delete this user and all their posts?")) {
+    return;
+  }
   try {
-    console.log(`Attempting to delete user with userId: ${userId}`);
-
     const response = await axios.delete(`http://localhost:3000/api/admin/deleteProfile/${userId}`);
-
     if (response.status === 200 || response.status === 204) {
       console.log(`User ${userId} deleted successfully.`);
-      setUsers((prevUsers) => prevUsers.filter((user) => user.userId._id !== userId));
-    } else {
-      console.error("Failed to delete user:", response.statusText);
+      fetchPosts();
+      fetchUsers();
     }
   } catch (error) {
     console.error("Error deleting user:", error.response?.data || error.message);
   }
 };
-
 
 
   const filteredPosts = posts.filter((post) => {
