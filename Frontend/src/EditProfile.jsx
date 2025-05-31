@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import api from "axios";
 
 const EditProfile = () => {
   const location = useLocation();
@@ -40,7 +41,7 @@ const EditProfile = () => {
     const token = localStorage.getItem("token");
 
     try {
-      await axios.put(
+      await api.put(
         "http://localhost:3000/api/user/profile/update",
         {
           name: form.name,

@@ -44,20 +44,25 @@ const getAllProfile = asynchandler(async (req, res) => {
 const deleteProfile = asynchandler(async (req, res) => {
   console.log(req.params.id);
 
-  // Use findById instead of find
-  const profile = await Profile.findOne({userId:req.params.id});
+  const profile = await Profile.findOne({ userId: req.params.id });
   if (!profile) {
-    res.status(404);
-    throw new Error("Profile not found");
+    return res.status(404).json({ message: "Profile not found" });
+  }
+
+  // Fetch posts (optional: no error if none found)
+  const posts = await Post.find({ userId: req.params.id });
+  if (!posts || posts.length === 0) {
+    console.log("No posts found for this user.");
   }
 
   const user = await User.findById(req.params.id);
   if (!user) {
-    res.status(404);
-    throw new Error("User not found");
+    return res.status(404).json({ message: "User not found" });
   }
 
-  // Now you can delete
+  // Delete all posts associated with the userId
+  await Post.deleteMany({ userId: req.params.id });
+  // Delete profile and user
   await profile.deleteOne();
   await user.deleteOne();
 
@@ -65,6 +70,7 @@ const deleteProfile = asynchandler(async (req, res) => {
     message: "Profile deleted successfully",
   });
 });
+
 
 
 module.exports = {

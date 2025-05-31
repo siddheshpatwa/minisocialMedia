@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import api from "axios";
 
 const defaultAvatar = "https://www.w3schools.com/howto/img_avatar.png";
 
@@ -36,7 +37,7 @@ const PublicProfilePage = () => {
       );
 
       // Call backend API
-      const res = await axios.post(
+      const res = await api.post(
         `http://localhost:3000/api/user/profile/like/${postId}`,
         {},
         {
@@ -95,7 +96,7 @@ const PublicProfilePage = () => {
         setLoading(true);
         console.log("[fetchPublicProfile] Fetching profile for userId:", userId);
 
-        const res = await axios.get(
+        const res = await api.get(
           `http://localhost:3000/api/user/profile/public-profile/${userId}`,
           {
             headers: { Authorization: `Bearer ${token}` },

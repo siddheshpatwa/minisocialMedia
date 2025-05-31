@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import api from "axios";
 
 const EditPost = () => {
   const { id } = useParams();
@@ -26,7 +27,7 @@ const EditPost = () => {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const res = await axios.get(
+        const res = await api.get(
           `http://localhost:3000/api/user/profile/post_get/${id}`,
           {
             headers: {
@@ -97,7 +98,7 @@ const EditPost = () => {
     }
 
     try {
-      await axios.put(
+      await api.put(
         `http://localhost:3000/api/user/profile/post_u/${id}`,
         formData,
         {

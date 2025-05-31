@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiUser, FiMail, FiLock } from 'react-icons/fi';
+import api from 'axios';
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -17,7 +18,7 @@ const Register = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await axios.post('http://localhost:3000/api/user/register', {
+      const response = await api.post('http://localhost:3000/api/user/register', {
         name,
         email,
         password,

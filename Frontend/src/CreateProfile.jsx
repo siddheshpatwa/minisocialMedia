@@ -10,6 +10,7 @@ import {
   FiBookOpen,
   FiTag,
 } from "react-icons/fi";
+import api from "axios";
 
 const CreateProfile = () => {
   const [form, setForm] = useState({
@@ -57,7 +58,7 @@ const CreateProfile = () => {
     };
 
     try {
-      const response = await axios.post(
+      const response = await api.post(
         "http://localhost:3000/api/user/profile/create",
         payload,
         {

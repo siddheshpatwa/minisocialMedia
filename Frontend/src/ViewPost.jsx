@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import api from "axios";
 
 const ViewPost = () => {
   const { id } = useParams();
@@ -13,7 +14,7 @@ const ViewPost = () => {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/api/user/profile/post_view/${id}`, {
+        const res = await api.get(`http://localhost:3000/api/user/profile/post_view/${id}`, {
           headers: {
             Authorization: token ? `Bearer ${token}` : undefined,
           },

@@ -8,6 +8,7 @@ import {
   FiTwitter,
   FiLink,
 } from "react-icons/fi";
+import api from "axios";
 
 const AdminPage = () => {
   const [posts, setPosts] = useState([]);
@@ -43,7 +44,7 @@ const AdminPage = () => {
       // console.log("Fetching users from /api/admin/profile...");
       const res = await fetch("http://localhost:3000/api/admin/profile");
       const data = await res.json();
-      // console.log("Fetched profile:", data);
+      console.log("Fetched profile:", data);
      if (data.posts && Array.isArray(data.posts)) {
   setUsers(data.posts);
 
@@ -58,7 +59,7 @@ const AdminPage = () => {
   };
 const deletePost = async (postId) => {
   try {
-    const response = await axios.delete(`http://localhost:3000/api/admin/deletePost/${postId}`);
+    const response = await api.delete(`http://localhost:3000/api/admin/deletePost/${postId}`);
 
     if (response.status === 200 || response.status === 204) {
       // console.log(`Post ${postId} deleted successfully.`);
@@ -98,17 +99,15 @@ const deletePost = async (postId) => {
   //     return updated;
   //   });
   // };
-  const deleteUser = async (userId) => {
+ const deleteUser = async (userId) => {
   try {
-  const id = typeof userId === 'object' ? userId._id : userId;
-  console.log(`Attempting to delete user with ID: ${id}`);
-    const response = await axios.delete(`http://localhost:3000/api/admin/deleteProfile/${id}`);
-// console.log(`Attempting to delete user with ID: ${userId}`);
+    console.log(`Attempting to delete user with userId: ${userId}`);
+
+    const response = await axios.delete(`http://localhost:3000/api/admin/deleteProfile/${userId}`);
+
     if (response.status === 200 || response.status === 204) {
       console.log(`User ${userId} deleted successfully.`);
-
-      // Remove user from the state
-      setUsers((prevUsers) => prevUsers.filter((user) => id  !== id));
+      setUsers((prevUsers) => prevUsers.filter((user) => user.userId._id !== userId));
     } else {
       console.error("Failed to delete user:", response.statusText);
     }
@@ -116,6 +115,8 @@ const deletePost = async (postId) => {
     console.error("Error deleting user:", error.response?.data || error.message);
   }
 };
+
+
 
   const filteredPosts = posts.filter((post) => {
     const term = postSearch.toLowerCase();
@@ -186,7 +187,11 @@ const deletePost = async (postId) => {
           className="bg-white p-5 rounded-xl shadow-md border border-gray-200 hover:shadow-lg transition duration-300 relative"
         >
           <button
-            onClick={() => deleteUser(user.userId)}
+            onClick={() =>{
+               deleteUser(user.userId._id)
+               console.log(`User ${user.userId._id} deleted successfully.`)
+            }
+              }
             className="absolute top-3 right-3 text-red-500 hover:text-red-700"
             title="Delete User"
           >

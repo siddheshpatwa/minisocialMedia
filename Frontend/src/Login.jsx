@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { FiMail, FiLock } from "react-icons/fi";
+import api from "axios";
 
 const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -17,7 +18,7 @@ const Login = () => {
     setError("");
 
     try {
-      const res = await axios.post("http://localhost:3000/api/user/login", form);
+      const res = await api.post("http://localhost:3000/api/user/login", form);
       localStorage.setItem("token", res.data.token);
       alert("Login Successful");
       navigate("/profile"); // Adjust route accordingly

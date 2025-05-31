@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import api from "axios";
 
 const CreatePost = () => {
   const [title, setTitle] = useState("");
@@ -74,7 +75,7 @@ const CreatePost = () => {
       formData.append("location", location);
       formData.append("alt", altText);
 
-      const res = await axios.post(
+      const res = await api.post(
         "http://localhost:3000/api/user/profile/post_create",
         formData,
         {

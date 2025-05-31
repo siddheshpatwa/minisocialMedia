@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import api from "axios";
 
 const defaultAvatar = "https://www.w3schools.com/howto/img_avatar.png";
 
@@ -30,7 +31,7 @@ const ProfilePage = () => {
     const fetchProfile = async () => {
       try {
         setLoadingProfile(true);
-        const res = await axios.get("http://localhost:3000/api/user/profile/get", {
+        const res = await api.get("http://localhost:3000/api/user/profile/get", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setProfile(res.data.profile);
@@ -44,7 +45,7 @@ const ProfilePage = () => {
     const fetchPosts = async () => {
       try {
         setLoadingPosts(true);
-        const res = await axios.get("http://localhost:3000/api/user/profile/post_get", {
+        const res = await api.get("http://localhost:3000/api/user/profile/post_get", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -84,7 +85,7 @@ const ProfilePage = () => {
         try {
           setLoadingUsers(true);
           setErrorUsers(null);
-          const res = await axios.get(
+          const res = await api.get(
             `http://localhost:3000/api/user/profile/search?search=${encodeURIComponent(searchQuery)}`,
             {
               headers: { Authorization: `Bearer ${token}` },
@@ -137,7 +138,7 @@ const toggleLike = async (postId) => {
   );
 
   try {
-    const res = await axios.post(
+    const res = await api.post(
       `http://localhost:3000/api/user/profile/like/${postId}`,
       {},
       {
@@ -186,7 +187,7 @@ const toggleLike = async (postId) => {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:3000/api/user/profile/post_delete/${postId}`, {
+      await api.delete(`http://localhost:3000/api/user/profile/post_delete/${postId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setPosts((prev) => prev.filter((p) => p._id !== postId));
