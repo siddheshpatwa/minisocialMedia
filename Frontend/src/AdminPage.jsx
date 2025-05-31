@@ -123,11 +123,13 @@ const deleteUser = async (userId) => {
     return;
   }
   try {
-    const response = await axios.delete(`http://localhost:3000/api/admin/deleteProfile/${userId}`);
+    const response = await api.delete(`http://localhost:3000/api/admin/deleteProfile/${userId}`);
     if (response.status === 200 || response.status === 204) {
       console.log(`User ${userId} deleted successfully.`);
       fetchPosts();
       fetchUsers();
+            window.location.reload();
+
     }
   } catch (error) {
     console.error("Error deleting user:", error.response?.data || error.message);
