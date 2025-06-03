@@ -11,6 +11,8 @@ const ProfilePage = () => {
   const [loadingProfile, setLoadingProfile] = useState(true);
 
   const [posts, setPosts] = useState([]);
+  const [commentInputs, setCommentInputs] = useState({});
+
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [errorPosts, setErrorPosts] = useState(null);
 
@@ -59,6 +61,7 @@ const ProfilePage = () => {
           altText: post.alt || "",
           likes: post.likes || 0,
         }));
+        console.log("Fetched posts:", postsWithExtras);
 
         setPosts(postsWithExtras);
       } catch (err) {
@@ -180,7 +183,37 @@ const toggleLike = async (postId) => {
 };
 
 
+const handleComment=(postId, commentText)=>{
+   try {
+        console.log("Posting comment:", commentText, "for post:", postId);
 
+  const token = localStorage.getItem("token");
+  if (!token) {
+    alert("Please login to comment on posts.");
+    navigate("/login");
+    return;
+  }
+
+      api.post(
+    `http://localhost:3000/api/user/profile/comment/${postId}`,
+    { comment:  commentText }, 
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  )
+ 
+  console.log("Comment posted successfully");
+
+  
+
+  } catch (error) {
+    alert(error.response?.data?.message || "Failed to comment on post.");
+    console.error("Error commenting on post:", error);
+    return;
+    
+  }
+
+}
 
   const handleDeletePost = async (postId) => {
     if (!window.confirm("Are you sure you want to delete this post?")) return;
@@ -237,7 +270,6 @@ const toggleLike = async (postId) => {
           </div>
         )}
       </div>
-
       {/* Profile Info */}
       {loadingProfile ? (
         <p className="text-center text-lg mt-20 text-cyan-500 animate-pulse font-semibold">Loading profile...</p>
@@ -288,72 +320,115 @@ const toggleLike = async (postId) => {
       ) : null}
 
       {/* Posts Section */}
-      <section className="mt-12 max-w-4xl mx-auto space-y-10">
-        <h2 className="text-3xl font-bold text-cyan-700 border-b-4 border-cyan-400 pb-2">My Posts</h2>
-                <button
-          onClick={() => navigate("/create-post")}
-          className="bg-cyan-500 hover:bg-cyan-600 text-white font-semibold px-5 py-2 rounded-full shadow-md transition mb-4 ml-180"
-        >
-          + Create New Post
-        </button>
+     <section className="mt-12 max-w-4xl mx-auto space-y-10">
+  <h2 className="text-3xl font-bold text-cyan-700 border-b-4 border-cyan-400 pb-2">
+    My Posts
+  </h2>
+  <button
+    onClick={() => navigate("/create-post")}
+    className="bg-cyan-500 hover:bg-cyan-600 text-white font-semibold px-5 py-2 rounded-full shadow-md transition mb-4 ml-180"
+  >
+    + Create New Post
+  </button>
 
-        {loadingPosts ? (
-          <p className="text-center text-cyan-500 font-semibold animate-pulse">Loading posts...</p>
-        ) : errorPosts ? (
-          <p className="text-center text-red-500 font-semibold">{errorPosts}</p>
-        ) : posts.length === 0 ? (
-          <p className="text-center text-gray-500 italic">No posts yet. Start sharing something!</p>
-        ) : (
-          posts.map((post) => (
-            <div
-              key={post._id}
-              className="bg-white shadow-lg rounded-2xl p-6 space-y-4 border border-cyan-100"
+  {loadingPosts ? (
+    <p className="text-center text-cyan-500 font-semibold animate-pulse">Loading posts...</p>
+  ) : errorPosts ? (
+    <p className="text-center text-red-500 font-semibold">{errorPosts}</p>
+  ) : posts.length === 0 ? (
+    <p className="text-center text-gray-500 italic">No posts yet. Start sharing something!</p>
+  ) : (
+    posts.map((post) => (
+      <div
+        key={post._id}
+        className="bg-white shadow-lg rounded-2xl p-6 space-y-4 border border-cyan-100"
+      >
+        <p className="text-gray-700 font-semibold text-lg">{post.title}</p>
+        <img
+          src={post.image || defaultAvatar}
+          alt={post.alt || "Post Image"}
+          className="w-full h-64 object-cover rounded-xl"
+        />
+        <p className="text-gray-700">{post.description}</p>
+        <p className="text-sm text-cyan-500 font-medium">Location: {post.location || "None"}</p>
+        <p className="text-sm text-cyan-500 font-medium">Caption: {post.caption || "None"}</p>
+        <p className="text-sm text-cyan-500 font-medium">Hashtags: {post.hashtags || "None"}</p>
+
+        <div className="flex items-center justify-between mt-4">
+          <button
+            onClick={() => toggleLike(post._id)}
+            className={`font-bold text-sm transition ${
+              post.liked ? "text-pink-600" : "text-gray-500"
+            }`}
+          >
+            {post.liked ? "♥ Liked" : "♡ Like"}
+          </button>
+          <span className="text-cyan-500 font-medium">
+            {post.likes.length} {post.likes.length === 1 ? "like" : "likes"}
+          </span>
+          <button
+            onClick={() => handleDeletePost(post._id)}
+            className="bg-red-100 hover:bg-red-200 text-red-600 font-semibold text-sm px-4 py-2 rounded-full"
+          >
+            Delete
+          </button>
+        </div>
+
+        {/* Comments Section */}
+        <div className="mt-6">
+          <h3 className="text-cyan-700 font-semibold mb-2">Comments {post.comments.length} </h3> 
+          {/* Existing comments */}
+          {post.comments && post.comments.length > 0 ? (
+            <ul className="max-h-40 overflow-y-auto space-y-3 mb-4">
+              {post.comments.map((comment) => (
+                <li key={comment._id || comment.createdAt} className="border rounded-lg p-3 bg-cyan-50">
+                  <p className="text-sm font-medium text-cyan-700">{comment.name }</p>
+                  <p className="text-gray-700">{comment.text || comment.comment}</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {new Date(comment.createdAt).toLocaleString()}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-400 italic mb-4">No comments yet. Be the first to comment!</p>
+          )}
+
+          {/* Add Comment Input */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (commentInputs[post._id]?.trim()) {
+                handleComment(post._id, commentInputs[post._id]);
+                setCommentInputs((prev) => ({ ...prev, [post._id]: "" }));
+              }
+            }}
+            className="flex space-x-3"
+          >
+            <input
+              type="text"
+              placeholder="Add a comment..."
+              value={commentInputs[post._id] || ""}
+              onChange={(e) =>
+                setCommentInputs((prev) => ({ ...prev, [post._id]: e.target.value }))
+              }
+              className="flex-grow border border-cyan-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+              required
+            />
+            <button
+            onClick={() => handleComment(post._id, commentInputs[post._id])}
+              type="submit"
+              className="bg-cyan-500 hover:bg-cyan-600 text-white rounded-full px-5 py-2 font-semibold transition"
             >
-              <p className="text-gray-700">{post.title}</p>
-              <img
-                src={post.image || defaultAvatar}
-                alt={post.alt || "Post Image"}
-                className="w-full h-64 object-cover rounded-xl"
-              />
-              <p className="text-gray-700">{post.description}</p>
-                   <p className="text-sm text-cyan-500 font-medium">
-                Location: {post.location || "None"}
-              </p>
-                   <p className="text-sm text-cyan-500 font-medium">
-                Caption: {post.caption || "None"}
-              </p>
-              <p className="text-sm text-cyan-500 font-medium">
-                Hashtags: {post.hashtags || "None"}
-              </p>
-              
-              <div className="flex items-center justify-between mt-4">
-                  <button
+              Post
+            </button>
+          </form>
+        </div>
+      </div>
+    ))
+  )}
+</section>
 
-onClick={() => toggleLike(post._id)}
-                className={`font-bold text-sm transition ${
-                  post.liked ? "text-pink-600" : "text-gray-500"
-                }`}
-              >
-                {post.liked ? "♥ Liked" : "♡ Like"}
-              </button>
-        <span className="text-cyan-500 font-medium">
-  {post.likes.length} {post.likes.length === 1 ? "like" : "likes"}
-</span>
-
-
-
-              {console.log("Post ID:", post._id, "Liked:", post.liked)}
-                <button
-                  onClick={() => handleDeletePost(post._id)}
-                  className="bg-red-100 hover:bg-red-200 text-red-600 font-semibold text-sm px-4 py-2 rounded-full"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))
-        )}
-      </section>
     </div>
   );
 };

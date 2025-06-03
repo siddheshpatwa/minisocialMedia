@@ -202,9 +202,14 @@ const commentPost = asynchandler(async (req, res) => {
         res.status(400);
         throw new Error("Comment text is required");
     }
+    const user=await User.findById(req.user._id);
+    console.log(req.user._id);
+    console.log(user);
+    console.log("name:",user.name); 
     post.comments.push({
          user: req.user._id,     
-        text: comment 
+        text: comment ,
+        name:  user.name,
     });
 
     await post.save();
