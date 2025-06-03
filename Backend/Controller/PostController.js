@@ -191,6 +191,29 @@ const getLikeCount = asynchandler(async (req, res) => {
     });
 });
 
+const commentPost = asynchandler(async (req, res) => {
+    const { comment } = req.body;
+    const post = await Post.findById(req.params.id);
+    if (!post) {
+        res.status(404);
+        throw new Error("Post not found");
+    }
+   if (!comment || comment.trim() === "") {
+        res.status(400);
+        throw new Error("Comment text is required");
+    }
+    post.comments.push({
+         user: req.user._id,     
+        text: comment 
+    });
+
+    await post.save();
+
+    res.status(200).json({
+        message: "Comment added successfully",
+        comments: post.comments,
+    });
+});
 module.exports = {
     createPost,
     updatePost,
@@ -199,5 +222,6 @@ module.exports = {
     viewPost,
     deletePost,
     likePost,
-    getLikeCount
+    getLikeCount,
+    commentPost
 }

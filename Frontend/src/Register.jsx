@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+// import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiUser, FiMail, FiLock } from 'react-icons/fi';
 import api from 'axios';
@@ -33,6 +33,7 @@ const Register = () => {
 
       navigate('/create-profile');
     } catch (error) {
+      console.error('Registration error:', error);
       setMessage(error.response?.data?.message || 'Error occurred during registration');
     } finally {
       setIsSubmitting(false);
