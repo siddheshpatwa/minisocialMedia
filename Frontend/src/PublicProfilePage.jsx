@@ -11,6 +11,7 @@ const PublicProfilePage = () => {
 
   const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
+  const [commentInputs, setCommentInputs] = useState({}); 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -35,6 +36,7 @@ const PublicProfilePage = () => {
             : p
         )
       );
+    
 
       // Call backend API
       const res = await api.post(
@@ -78,6 +80,47 @@ const PublicProfilePage = () => {
       );
     }
   };
+
+  const handleComment = async (postId, commentText) => {
+  try {
+    console.log("Posting comment:", commentText, "for post:", postId);
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please login to comment on posts.");
+      navigate("/login");
+      return;
+    }
+
+    const res = await api.post(
+      `http://localhost:3000/api/user/profile/comment/${postId}`,
+      { comment: commentText },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    const newComment = res.data.comment; // Ensure backend sends back the created comment
+
+    // 🔄 Update state locally
+    setPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post._id === postId
+          ? {
+              ...post,
+              comments: [...post.comments, newComment],
+            }
+          : post
+      )
+    );
+
+    console.log("Comment posted and state updated.");
+
+  } catch (error) {
+    alert(error.response?.data?.message || "Failed to comment on post.");
+    console.error("Error commenting on post:", error);
+  }
+};
 
   useEffect(() => {
     console.log("[useEffect] userId param changed:", userId);
@@ -249,6 +292,101 @@ const PublicProfilePage = () => {
             {post.likes} {post.likes === 1 ? "like" : "likes"}
           </span>
         </div>
+
+        {/* Comments Section */}
+        <div className="mt-6">
+  <h3 className="text-cyan-700 font-semibold mb-2">
+    Comments ({post.comments?.length || 0})
+  </h3>
+
+  {/* Existing Comments */}
+  {post.comments && post.comments.length > 0 ? (
+    <ul className="max-h-40 overflow-y-auto space-y-3 mb-4">
+      {post.comments.map((comment, index) => {
+        if (!comment || typeof comment !=="object") return null;
+        return (
+          <li
+            key={comment._id || comment.createdAt || index}
+            className="border rounded-lg p-3 bg-cyan-50"
+          >
+            <p className="text-sm font-medium text-cyan-700">{comment.name}</p>
+            <p className="text-gray-700">{comment.text}</p>
+            <p className="text-xs text-gray-400 mt-1">
+              {new Date(comment.createdAt).toLocaleString()}
+            </p>
+          </li>
+        );
+})}
+    </ul>
+  ) : (
+    <p className="text-gray-400 italic mb-4">
+      No comments yet. Be the first to comment!
+    </p>
+  )}
+
+  {/* Add Comment Input */}
+  <form
+    onSubmit={async (e) => {
+      e.preventDefault();
+      console.log("Submitting comment for post:");
+      const commentText = commentInputs[post._id]?.trim();
+      if (!commentText) return;
+
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Please login to comment.");
+        navigate("/login");
+        return;
+      }
+
+      try {
+        const res = await api.post(
+          `http://localhost:3000/api/user/profile/comment/${post._id}`,
+          { comment: commentText },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        const newComment = res.data.comment; // Adjust if your API returns differently
+
+        // Immediately update the local post state with the new comment
+        setPosts((prevPosts) =>
+          prevPosts.map((p) =>
+            p._id === post._id
+              ? { ...p, comments: [...p.comments, newComment] }
+              : p
+          )
+        );
+
+        // Clear the input
+        setCommentInputs((prev) => ({ ...prev, [post._id]: "" }));
+      } catch (error) {
+        alert(error.response?.data?.message || "Failed to comment.");
+        console.error(error);
+      }
+    }}
+    className="flex space-x-3"
+  >
+    <input
+      type="text"
+      placeholder="Add a comment..."
+      value={commentInputs[post._id] || ""}
+      onChange={(e) =>
+        setCommentInputs((prev) => ({ ...prev, [post._id]: e.target.value }))
+      }
+      className="flex-grow border border-cyan-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+      required
+    />
+    <button
+      type="submit"
+      className="bg-cyan-500 hover:bg-cyan-600 text-white rounded-full px-5 py-2 font-semibold transition"
+    >
+      Post
+    </button>
+  </form>
+</div>
+
       </div>
     ))
   )}

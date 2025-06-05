@@ -27,6 +27,10 @@ const profileSchema = new mongoose.Schema({
     linkedin: { type: String, default: '' },
     twitter: { type: String, default: '' },
     portfolio: { type: String, default: '' },
+  },
+  image:{
+  type: String,
+  default: '',
   }
 }, { timestamps: true });
 
