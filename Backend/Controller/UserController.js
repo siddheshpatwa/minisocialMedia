@@ -51,6 +51,7 @@ const registerUser = asynchandler(async (req, res) => {
 
   } catch (error) {
     console.error("Error during registration:", error.message);
+    console.error("Stack trace:", error.stack);
     res.status(500).json({ message: error.message || "Server error" });
   }
 });
